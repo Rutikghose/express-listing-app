@@ -40,7 +40,7 @@ main()
 
 
 const store= MongoStore.create({
-    mongoUrl:dburl,
+    mongoUrl:process.env.ATLASDB_URL,
     crypto:{
         secret: process.env.SESSION_SECRET 
     },
