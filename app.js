@@ -18,7 +18,7 @@ const MongoStore = require('connect-mongo');
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
-const flash = require("express-flash");
+const flash = require("connect-flash");
 const { env } = require('process');
 
 app.use(methodOverride('_method'));
@@ -38,7 +38,7 @@ main()
     .then(() => console.log("✅ Database connected successfully"))
     .catch((err) => console.log("❌ Database connection error:", err));
 
-// ----------------- SESSION CONFIG -----------------
+
 const store= MongoStore.create({
     mongoUrl:dburl,
     crypto:{
@@ -78,18 +78,20 @@ app.use((req, res, next) => {
     next();
 });
 
-// ----------------- PASSPORT CONFIG -----------------
+
+
+
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// ----------------- VALID CATEGORIES -----------------
+
 const validCategories = [
     "Trending", "Room", "IconicCities", "Mountains",
     "Castles", "AmazingPools", "Camping", "Farms", "Arctic"
 ];
 
-// ----------------- DEMO USER -----------------
+
 app.get("/demouser", async (req, res) => {
     try {
         const sampleuser = new User({ email: "rutikghose@gmail.com", username: "rutik" });
@@ -100,7 +102,7 @@ app.get("/demouser", async (req, res) => {
     }
 });
 
-// ----------------- AUTH ROUTES -----------------
+
 app.get("/signup", (req, res) => res.render("signup.ejs"));
 
 app.post("/signup", async (req, res) => {
@@ -147,7 +149,7 @@ app.get("/logout", (req, res, next) => {
     });
 });
 
-// ----------------- MAIN ROUTES -----------------
+
 app.get("/", (req, res) => res.redirect("/alllistings"));
 
 app.get("/alllistings", async (req, res) => {
@@ -188,50 +190,68 @@ app.post("/listings/search", async (req, res) => {
     res.render("index", { alllistings: listings });
 });
 
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    req.flash("error", "You must be logged in to create a listing");
+    res.redirect("/login");
+}
 
 
-// ----------------- CREATE NEW LISTING -----------------
-app.get("/newlisting", isLoggedIn, (req, res) => {
-    res.render("newlisting.ejs");
+app.get("/list", (req, res) => {
+   
+     res.render("newlisting.ejs");
 });
 
 app.post("/listing", isLoggedIn, upload.single("img"), async (req, res) => {
     try {
-        if (!req.file) {
-            req.flash("error", "Please upload an image");
-            return res.redirect("/newlisting");
-        }
-        const url = req.file.path;
         const { title, description, price, location, country, category } = req.body;
+
+       
         if (!title || !description || !price || !location || !country || !category) {
             req.flash("error", "All fields are required");
             return res.redirect("/newlisting");
         }
         if (!validCategories.includes(category)) {
-            req.flash("error", "Invalid category");
+            req.flash("error", "Invalid category selected");
             return res.redirect("/newlisting");
         }
-        const list = new Listing({
-            title, description, price: parseFloat(price),
-            location, country, category, image: url,
+        if (!req.file) {
+            req.flash("error", "Please upload an image");
+            return res.redirect("/newlisting");
+        }
+
+        const newListing = new Listing({
+            title,
+            description,
+            price: parseFloat(price),
+            location,
+            country,
+            category,
+            image: req.file.path,
             owner: req.user._id
         });
-        await list.save();
+
+        await newListing.save();
         req.flash("success", "Listing created successfully!");
         res.redirect("/alllistings");
+
     } catch (error) {
         console.error("Error creating listing:", error);
-        req.flash("error", "Error creating listing");
+        req.flash("error", "Something went wrong while creating the listing");
         res.redirect("/newlisting");
     }
 });
+
+
 
 app.get("/listing/:id", async (req, res) => {
     const { id } = req.params;
     const listing = await Listing.findById(id);
     res.render("showlisting.ejs", { listing });
 });
-// ----------------- UPDATE LISTING -----------------
+
 app.put("/listing/:id", isLoggedIn, upload.single("img"), async (req, res) => {
     try {
         const { id } = req.params;
@@ -260,7 +280,7 @@ app.put("/listing/:id", isLoggedIn, upload.single("img"), async (req, res) => {
     }
 });
 
-// ----------------- EDIT PAGE -----------------
+
 app.get("/listing/:id/edit", isLoggedIn, async (req, res) => {
     try {
         const { id } = req.params;
@@ -279,7 +299,7 @@ app.get("/listing/:id/edit", isLoggedIn, async (req, res) => {
     }
 });
 
-/// ----------------- DELETE LISTING -----------------
+
 app.delete("/listing/:id", isLoggedIn, async (req, res) => {
     try {
         const { id } = req.params;
@@ -295,7 +315,6 @@ app.delete("/listing/:id", isLoggedIn, async (req, res) => {
 });
 
 
-// ----------------- REVIEWS -----------------
 app.post("/listing/:id/review", isLoggedIn, async (req, res) => {
     try {
         const { id } = req.params;
@@ -368,7 +387,7 @@ app.delete("/listing/:id/review/:reviewid", isLoggedIn, async (req, res) => {
     }
 });
 
-// ----------------- MIDDLEWARE -----------------
+
 function isLoggedIn(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
@@ -377,7 +396,6 @@ function isLoggedIn(req, res, next) {
     res.redirect("/login");
 }
 
-// ----------------- ERROR HANDLING -----------------
 app.use((req, res) => {
     req.flash("error", "Page not found!");
     res.redirect("/alllistings");
@@ -389,7 +407,7 @@ app.use((err, req, res, next) => {
     res.redirect("/alllistings");
 });
 
-// ----------------- SERVER -----------------
+
 app.listen(port, () => {
     console.log(`🚀 Server running at http://localhost:${port}`);
     console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
