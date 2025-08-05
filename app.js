@@ -29,10 +29,10 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 
 
-const dburl=process.env.ATLASDB_URL;
+
 
 async function main() {
-    await mongoose.connect(dburl);
+    await mongoose.connect(process.env.ATLASDB_URL);
 }
 main()
     .then(() => console.log("✅ Database connected successfully"))
