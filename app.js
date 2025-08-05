@@ -206,6 +206,11 @@ app.get("/list", (req, res) => {
      res.render("newlisting.ejs");
 });
 
+app.get("/list", (req, res) => {
+   
+     res.render("newlisting.ejs");
+});
+
 app.post("/listing", isLoggedIn, upload.single("img"), async (req, res) => {
     try {
         const { title, description, price, location, country, category } = req.body;
@@ -245,6 +250,8 @@ app.post("/listing", isLoggedIn, upload.single("img"), async (req, res) => {
         res.redirect("/newlisting");
     }
 });
+
+
 
 
 

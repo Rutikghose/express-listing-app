@@ -12,8 +12,13 @@ const listingSchema = new mongoose.Schema({
         trim: true,
     },
     image: {
-        type: String,
-        default: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=60",
+        url: {
+            type: String,
+            default: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=60",
+        },
+        filename: {
+            type: String,
+        }
     },
     price: {
         type: Number,
@@ -56,6 +61,7 @@ const listingSchema = new mongoose.Schema({
     timestamps: true,
 });
 
+// Delete associated reviews when listing is deleted
 listingSchema.post("findOneAndDelete", async function (doc) {
     if (doc && doc.review.length) {
         await Review.deleteMany({ _id: { $in: doc.review } });
