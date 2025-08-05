@@ -1,0 +1,32 @@
+<% layout('boilerplat') %>
+
+<div class="container my-4">
+  <div class="row g-4 justify-content-center">
+    <% for (let alllist of alllistings) { %>
+      <div class="col-md-4 col-sm-6" id="box">
+        <div class="card shadow-sm h-100">
+          <img src="<%= alllist.image %>" class="card-img-top" alt="<%= alllist.title %>">
+          <div class="card-body">
+            <h5 class="card-title"><%= alllist.title %></h5>
+            <p class="card-text">₹ <%= alllist.price %>/night</p>
+            <p class="gstText" style="display: none">+18% GST</p>
+            <button class="toggleGST btn btn-secondary btn-sm">Total price after GST</button>
+            <a href="/listing/<%= alllist._id %>" class="btn btn-primary">View Details</a>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const toggleButtons = document.querySelectorAll(".toggleGST");
+    toggleButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        const gstText = button.previousElementSibling;
+        gstText.style.display = gstText.style.display === "none" ? "block" : "none";
+      });
+    });
+  });
+</script>

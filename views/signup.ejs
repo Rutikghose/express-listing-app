@@ -1,0 +1,39 @@
+
+<% layout('boilerplat') %>
+<div class="container">
+  <div class="row justify-content-center mt-5">
+    <div class="col-6">
+      <form class="needs-validation p-4 border rounded bg-white shadow" novalidate method="post" action="">
+        <h3 class="text-center mb-4">Sign Up</h3>
+        
+        <!-- Username -->
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input type="text" class="form-control" id="username" name="username" required>
+          <div class="invalid-feedback">Please enter a username.</div>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" name="email" required>
+          <div class="invalid-feedback">Please enter a valid email address.</div>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="password" name="password" required>
+          <div class="invalid-feedback">Please enter a password.</div>
+        </div>
+
+        <!-- Signup Button -->
+        <div class="d-flex justify-content-center">
+          <button type="submit" class="btn btn-primary w-50">Sign Up</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</form>
+<script src="/script.js"> </script>

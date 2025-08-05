@@ -1,0 +1,92 @@
+<% layout('boilerplat') %>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <% if (messages.error) { %>
+        <div class="alert alert-danger"><%= messages.error %></div>
+      <% } %>
+      <% if (messages.success) { %>
+        <div class="alert alert-success"><%= messages.success %></div>
+      <% } %>
+
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Update Listing</h4>
+        </div>
+        <div class="card-body">
+          <form action="/listing/<%= listing._id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+            
+            <!-- Title -->
+            <div class="mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input type="text" name="title" id="title" class="form-control" 
+                     value="<%= listing.title %>" required>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea name="description" id="description" class="form-control" rows="3" required><%= listing.description %></textarea>
+            </div>
+
+            <!-- Price -->
+            <div class="mb-3">
+              <label for="price" class="form-label">Price (₹)</label>
+              <input type="number" name="price" id="price" class="form-control" 
+                     value="<%= listing.price %>" min="1" step="0.01" required>
+            </div>
+
+            <!-- Location -->
+            <div class="mb-3">
+              <label for="location" class="form-label">Location</label>
+              <input type="text" name="location" id="location" class="form-control" 
+                     value="<%= listing.location %>" required>
+            </div>
+
+            <!-- Country -->
+            <div class="mb-3">
+              <label for="country" class="form-label">Country</label>
+              <input type="text" name="country" id="country" class="form-control" 
+                     value="<%= listing.country %>" required>
+            </div>
+
+            <!-- Category -->
+            <div class="mb-3">
+              <label for="category" class="form-label">Category</label>
+              <select name="category" id="category" class="form-select" required>
+                <option value="Trending" <%= listing.category === "Trending" ? "selected" : "" %>>Trending</option>
+                <option value="Room" <%= listing.category === "Room" ? "selected" : "" %>>Room</option>
+                <option value="IconicCities" <%= listing.category === "IconicCities" ? "selected" : "" %>>Iconic Cities</option>
+                <option value="Mountains" <%= listing.category === "Mountains" ? "selected" : "" %>>Mountains</option>
+                <option value="Castles" <%= listing.category === "Castles" ? "selected" : "" %>>Castles</option>
+                <option value="AmazingPools" <%= listing.category === "AmazingPools" ? "selected" : "" %>>Amazing Pools</option>
+                <option value="Camping" <%= listing.category === "Camping" ? "selected" : "" %>>Camping</option>
+                <option value="Farms" <%= listing.category === "Farms" ? "selected" : "" %>>Farms</option>
+                <option value="Arctic" <%= listing.category === "Arctic" ? "selected" : "" %>>Arctic</option>
+              </select>
+            </div>
+
+            <!-- Current Image -->
+            <% if (listing.image) { %>
+              <div class="mb-3">
+                <label class="form-label">Current Image</label><br>
+                <img src="<%= listing.image %>" alt="Current image" class="img-thumbnail" style="max-width: 200px;">
+              </div>
+            <% } %>
+
+            <!-- Image Upload -->
+            <div class="mb-3">
+              <label for="img" class="form-label">Upload New Image</label>
+              <input type="file" name="img" id="img" class="form-control" accept="image/*">
+              <small class="text-muted">Leave empty to keep the current image</small>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-success w-100">Update Listing</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

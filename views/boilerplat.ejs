@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wanderlust</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
+      padding: 15px 0;
+      border-bottom: 1px solid #eee;
+    
+    }
+    
+    .filter {
+      text-align: center;
+      opacity: 0.7;
+      transition: all 0.3s ease;
+      min-width: 80px;
+    }
+    
+    .filter:hover {
+      opacity: 1;
+      transform: translateY(-2px);
+    }
+    
+    .filter.active {
+      opacity: 1;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      padding: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .filter a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      padding: 5px;
+    }
+    
+    .filter i {
+      font-size: 1.5em;
+      margin-bottom: 5px;
+      display: block;
+    }
+    
+    .filter p {
+      margin: 0;
+      font-size: 0.8em;
+      font-weight: 500;
+    }
+    
+    .filter-reset {
+      background-color: #007bff;
+      color: white !important;
+      border-radius: 20px;
+      padding: 8px 15px;
+      font-size: 0.9em;
+    }
+    
+    .filter-reset:hover {
+      background-color: #0056b3;
+      color: white !important;
+    }
+    
+    
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top custom-navbar">
+    <div class="container-fluid">
+      <!-- Brand -->
+      <a class="navbar-brand fw-bold" href="/alllistings">
+        <i class="fa-solid fa-compass"></i> Wanderlust
+      </a>
+
+      <!-- Left-side navigation -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link text-white" href="/alllistings"><strong>Explore</strong></a>
+        </li>
+        <% if (currentUser) { %>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/newlisting">Add New Listing</a>
+          </li>
+        <% } %>
+      </ul>
+
+      <!-- Right-side hamburger button -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarRight"
+        aria-controls="navbarRight" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+       
+
+<form class="d-flex justify-content-end" role="search" method="post" action="/listings/search" style="margin-left: 600px;">
+  <input class="form-control me-2" type="search" name="query" placeholder="Search" aria-label="Search" />
+  <button class="btn btn-outline-success" type="submit">Search</button>
+</form>
+
+      <div class="collapse navbar-collapse justify-content-end" id="navbarRight">
+        <ul class="navbar-nav">
+          <% if (!currentUser) { %> 
+            <li class="nav-item">
+              <a class="nav-link text-white" href="/signup">Signup</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white" href="/login">Login</a>
+            </li>
+          <% } else { %>
+            <li class="nav-item">
+              <span class="nav-link text-white">Welcome, <%= currentUser.username %></span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white" href="/logout">Logout</a>
+            </li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+  <main class="container flex-grow-1 my-4">
+    <%- include("message.ejs")%>
+
+    <!-- Category Filters -->
+    <div class="filters">
+      <!-- Show All / Reset Filter -->
+      <div class="filter <%= !activeCategory ? 'active' : '' %>">
+        <a href="/alllistings" class="filter-reset">
+          <i class="fa-solid fa-list"></i>
+          <p>All Listings</p>
+        </a>
+      </div>
+
+      <!-- Trending -->
+      <div class="filter <%= activeCategory === 'Trending' ? 'active' : '' %>">
+        <a href="/listing/category/Trending">
+          <i class="fa-solid fa-fire"></i> 
+          <p>Trending</p>
+        </a>
+      </div>
+
+      <!-- Room -->
+      <div class="filter <%= activeCategory === 'Room' ? 'active' : '' %>">
+        <a href="/listing/category/Room">
+          <i class="fa-solid fa-bed"></i>
+          <p>Room</p> 
+        </a>
+      </div>
+
+      <!-- Iconic Cities (Fixed spacing issue) -->
+      <div class="filter <%= activeCategory === 'IconicCities' ? 'active' : '' %>">
+        <a href="/listing/category/IconicCities">
+          <i class="fa-solid fa-mountain-city"></i>
+          <p>Iconic Cities</p>
+        </a>
+      </div>
+
+      <!-- Mountains (Fixed spelling) -->
+      <div class="filter <%= activeCategory === 'Mountains' ? 'active' : '' %>">
+        <a href="/listing/category/Mountains">
+          <i class="fa-solid fa-mountain"></i>
+          <p>Mountains</p>
+        </a>
+      </div>
+
+      <!-- Castles -->
+      <div class="filter <%= activeCategory === 'Castles' ? 'active' : '' %>">
+        <a href="/listing/category/Castles">
+          <i class="fa-brands fa-fort-awesome"></i>
+          <p>Castles</p>
+        </a>
+      </div>
+
+      <!-- Amazing Pools (Fixed name) -->
+      <div class="filter <%= activeCategory === 'AmazingPools' ? 'active' : '' %>">
+        <a href="/listing/category/AmazingPools">
+          <i class="fa-solid fa-person-swimming"></i>
+          <p>Amazing Pools</p>
+        </a>
+      </div>
+
+      <!-- Camping -->
+      <div class="filter <%= activeCategory === 'Camping' ? 'active' : '' %>">
+        <a href="/listing/category/Camping">
+          <i class="fa-solid fa-campground"></i>
+          <p>Camping</p>
+        </a>
+      </div>
+
+      <!-- Farms -->
+      <div class="filter <%= activeCategory === 'Farms' ? 'active' : '' %>">
+        <a href="/listing/category/Farms">
+          <i class="fa-solid fa-cow"></i>
+          <p>Farms</p>
+        </a>
+      </div>
+
+      <!-- Arctic -->
+      <div class="filter <%= activeCategory === 'Arctic' ? 'active' : '' %>">
+        <a href="/listing/category/Arctic">
+          <i class="fa-solid fa-snowflake"></i>
+          <p>Arctic</p>
+        </a>
+      </div>
+    
+    <% if (activeCategory) { %>
+      <div class="alert alert-info d-flex justify-content-between align-items-center" style="margin-left: 450px;">
+        <span>
+          <i class="fa-solid fa-filter me-2"></i>
+          Showing listings for: <strong><%= activeCategory %></strong>
+        </span>
+        <a href="/alllistings" class="btn btn-sm btn-outline-primary">
+          <i class="fa-solid fa-times me-1"></i>Clear Filter
+        </a>
+      </div>
+    <% } %>
+
+    <%- body %>
+  </main>
+
+  <!-- Footer -->
+  <footer class="custom-footer text-white pt-4">
+    <div class="container">
+      <div class="row">
+        <!-- Logo & About -->
+        <div class="col-md-4 mb-4">
+          <h5><i class="fa-solid fa-compass me-2"></i>Wanderlust</h5>
+          <p class="text-light">Explore beautiful listings across the globe. Find your perfect stay, anywhere, anytime.</p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="col-md-4 mb-4">
+          <h5>Quick Links</h5>
+          <ul class="list-unstyled">
+            <li><a href="/alllistings" class="footer-link">Home</a></li>
+            <% if (currentUser) { %>
+              <li><a href="/newlisting" class="footer-link">Add Listing</a></li>
+            <% } %>
+            <li><a href="#" class="footer-link">Contact</a></li>
+            <li><a href="#" class="footer-link">About Us</a></li>
+          </ul>
+        </div>
+
+        <!-- Social Media -->
+        <div class="col-md-4 mb-4">
+          <h5>Follow Us</h5>
+          <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-github"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <hr class="border-top border-light" />
+      <p class="text-center mb-0">&copy; 2025 Wanderlust. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded",()=>{
+       const button=document.getElementById('switchCheckDefault');
+    const gstText = document.querySelectorAll(".gstText");
+    button.addEventListener("click",()=>{
+      gstText.forEach(gstText => {
+            if (gstText.style.display === "none") {
+    gstText.style.display = "block";
+} else {
+  gstText.style.display = "none";
+}
+        
+      });
+  
+    })
+    });
+   
+  </script>
+</body>
+</html>

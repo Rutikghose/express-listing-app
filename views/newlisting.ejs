@@ -1,0 +1,82 @@
+
+
+<% layout('boilerplat') %>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <% if (messages.error) { %>
+        <div class="alert alert-danger"><%= messages.error %></div>
+      <% } %>
+      <% if (messages.success) { %>
+        <div class="alert alert-success"><%= messages.success %></div>
+      <% } %>
+
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Create New Listing</h4>
+        </div>
+        <div class="card-body">
+          <form action="/listing" method="POST" enctype="multipart/form-data">
+            
+            <!-- Title -->
+            <div class="mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input type="text" name="title" id="title" class="form-control" placeholder="Enter listing title" required>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea name="description" id="description" class="form-control" rows="3" placeholder="Enter listing description" required></textarea>
+            </div>
+
+            <!-- Price -->
+            <div class="mb-3">
+              <label for="price" class="form-label">Price (₹)</label>
+              <input type="number" name="price" id="price" class="form-control" min="1" step="0.01" placeholder="Enter price per night" required>
+            </div>
+
+            <!-- Location -->
+            <div class="mb-3">
+              <label for="location" class="form-label">Location</label>
+              <input type="text" name="location" id="location" class="form-control" placeholder="Enter city/location" required>
+            </div>
+
+            <!-- Country -->
+            <div class="mb-3">
+              <label for="country" class="form-label">Country</label>
+              <input type="text" name="country" id="country" class="form-control" placeholder="Enter country name" required>
+            </div>
+
+            <!-- Category -->
+            <div class="mb-3">
+              <label for="category" class="form-label">Category</label>
+              <select name="category" id="category" class="form-select" required>
+                <option value="" disabled selected>Select a category</option>
+                <option value="Trending">Trending</option>
+                <option value="Room">Room</option>
+                <option value="IconicCities">Iconic Cities</option>
+                <option value="Mountains">Mountains</option>
+                <option value="Castles">Castles</option>
+                <option value="AmazingPools">Amazing Pools</option>
+                <option value="Camping">Camping</option>
+                <option value="Farms">Farms</option>
+                <option value="Arctic">Arctic</option>
+              </select>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="mb-3">
+              <label for="img" class="form-label">Upload Image</label>
+              <input type="file" name="img" id="img" class="form-control" accept="image/*" required>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-success w-100">Create Listing</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
