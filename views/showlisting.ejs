@@ -1,11 +1,7 @@
 <% layout('boilerplat') %>
 
 <div class="container my-5">
-    <div class="d-flex justify-content-end mb-3">
-        <a href="/newlisting" class="btn btn-success">
-            <i class="bi bi-plus-lg"></i> Create New Listing
-        </a>
-    </div>
+    
 
     <div class="card mb-4 shadow">
         <div class="row g-0">
@@ -18,62 +14,67 @@
                     <p class="card-text"><strong>Description:</strong> <%= listing.description %></p>
                     <p class="card-text"><strong>Price:</strong> ₹ <%= listing.price %></p>
                     <p class="card-text"><strong>Location:</strong> <%= listing.location %></p>
-                    <p class="card-text"><strong>Country:</strong> <%= listing.country %></p>
-
-                  
-                        <div class="mt-4 d-flex gap-3">
-                            <a href="/listing/<%= listing._id %>/edit" class="btn btn-primary">
-                                <i class="bi bi-pencil-square"></i> Edit Listing
-                            </a>
-
-                            <form method="post" action="/listing/<%= listing._id %>?_method=DELETE" 
-                                  onsubmit="return confirm('Are you sure you want to delete this listing?')">
-                                <button type="submit" class="btn btn-danger">
-                                    <i class="bi bi-trash"></i> Delete Listing
-                                </button>
-                            </form>
-                        </div>
-              
+                    <p class="card-text"><strong>Country:</strong> <%= listing.country %></p>   
                 </div>
             </div>
         </div>
     </div>
 
+    <% if (user && listing.owner && listing.owner._id.toString() === user._id.toString()) { %>
+<div class="mt-4 d-flex gap-3">
+    <a href="/listing/<%= listing._id %>/edit" class="btn btn-primary">
+        <i class="bi bi-pencil-square"></i> Edit Listing
+    </a>
+    <form method="post" action="/listing/<%= listing._id %>?_method=DELETE" 
+          onsubmit="return confirm('Are you sure you want to delete this listing?')">
+        <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Delete Listing
+        </button>
+    </form>
+</div>
+<% } %>
+
+
     <hr>
 
-    <!-- Review Form -->
-    <div class="row">
-        <div class="col-8">
-            <form method="POST" action="/listing/<%= listing._id %>/review" novalidate class="needs-validation">
-                <label class="form-label">Select points of Review</label><br>
-                <input type="range" name="Review[range]" min="1" max="5" class="form-range" required><br><br>  
+  <div class="row">
+  <div class="col-8">
+    <form method="POST" action="/listing/<%= listing._id %>/review" novalidate class="needs-validation">
+      <label class="form-label">Select points of Review: 
+        <span id="ratingValue">3</span>
+      </label><br>
+      <input type="range" name="Review[rating]" min="1" max="5" value="3" 
+             class="form-range" required 
+             oninput="document.getElementById('ratingValue').textContent = this.value"><br><br>  
 
-                <label class="form-label">Comments</label><br>
-                <textarea name="Review[comments]" class="form-control" required></textarea><br><br>
+      <label class="form-label">Comments</label><br>
+      <textarea name="Review[comments]" class="form-control" required></textarea><br><br>
 
-                <button type="submit" class="btn btn-primary">Upload Review</button>
-            </form>
-        </div>
+      <button type="submit" class="btn btn-primary">Upload Review</button>
+    </form>
+  </div>
+</div>
+<hr>
+
+<!-- Show Reviews with Delete Button -->
+<div class="reviews-section">
+  <h4>Reviews:</h4>
+  <% listing.review.forEach(review => { %>
+    <div class="card p-3 mb-2">
+      <p><strong>Rating:</strong> <%= review.rating %> ⭐</p>
+      <p><strong>Comment:</strong> <%= review.comments %></p>
+      <% if (user && review.author && review.author.equals(user._id)) { %>
+        <form method="POST" action="/listing/<%= listing._id %>/review/<%= review._id %>?_method=DELETE">
+          <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+      <% } %>
     </div>
+  <% }); %>
+</div>
+
 
     <hr>
 
-    <% if (listing.review.length > 0) { %>
-        <h2>Reviews:</h2>
-        <ul>
-            <% listing.review.forEach((rev) => { %>
-                <li>
-                    Rating: <%= rev.rating %> / 5 <br>
-                    Comment: <%= rev.comments %>
-                    <% if (currentUser && (rev.author._id.toString() === currentUser._id.toString() || listing.owner.toString() === currentUser._id.toString())) { %>
-                        <form method="post" action="/listing/<%= listing._id %>/review/<%= rev._id %>?_method=DELETE">
-                            <button class="btn btn-success">Delete</button>
-                        </form>
-                    <% } %>
-                </li>
-            <% }) %>
-        </ul>
-    <% } %>
 </div>
 
 <!-- Map Section (unchanged) -->

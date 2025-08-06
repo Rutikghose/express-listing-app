@@ -252,14 +252,30 @@ app.post("/listing", isLoggedIn, upload.single("img"), async (req, res) => {
 });
 
 
-
-
-
 app.get("/listing/:id", async (req, res) => {
-    const { id } = req.params;
-    const listing = await Listing.findById(id);
-    res.render("showlisting.ejs", { listing });
+    try {
+        const { id } = req.params;
+        const listing = await Listing.findById(id)
+            .populate("owner")
+            .populate({
+                path: "review",
+                populate: { path: "author" }
+            });
+
+        if (!listing) {
+            req.flash("error", "Listing not found");
+            return res.redirect("/alllistings");
+        }
+
+        res.render("showlisting", { listing, user: req.user || null });
+    } catch (error) {
+        console.error("Error fetching listing:", error);
+        req.flash("error", "Error fetching listing");
+        res.redirect("/alllistings");
+    }
 });
+
+
 
 app.put("/listing/:id", isLoggedIn, upload.single("img"), async (req, res) => {
     try {
@@ -323,37 +339,22 @@ app.delete("/listing/:id", isLoggedIn, async (req, res) => {
     }
 });
 
-
 app.post("/listing/:id/review", isLoggedIn, async (req, res) => {
     try {
         const { id } = req.params;
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            req.flash("error", "Invalid listing ID");
-            return res.redirect("/alllistings");
-        }
-        const { range, comments } = req.body.Review;
-        if (!range || !comments) {
-            req.flash("error", "Please provide both rating and comments");
-            return res.redirect(`/listing/${id}`);
-        }
-        const rating = parseInt(range);
-        if (rating < 1 || rating > 5) {
-            req.flash("error", "Rating must be between 1 and 5");
-            return res.redirect(`/listing/${id}`);
-        }
+        const { rating, comments } = req.body.Review;
+
         const review = new Review({
-            rating,
+            rating: parseInt(rating),
             comments: comments.trim(),
             author: req.user._id
         });
         await review.save();
+
         const listing = await Listing.findById(id);
-        if (!listing) {
-            req.flash("error", "Listing not found");
-            return res.redirect("/alllistings");
-        }
         listing.review.push(review._id);
         await listing.save();
+
         req.flash("success", "Review added successfully!");
         res.redirect(`/listing/${id}`);
     } catch (error) {
@@ -362,37 +363,22 @@ app.post("/listing/:id/review", isLoggedIn, async (req, res) => {
         res.redirect(`/listing/${id}`);
     }
 });
-
-app.delete("/listing/:id/review/:reviewid", isLoggedIn, async (req, res) => {
+app.delete("/listing/:listingId/review/:reviewId", isLoggedIn, async (req, res) => {
     try {
-        const { id, reviewid } = req.params;
-        if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(reviewid)) {
-            req.flash("error", "Invalid ID");
-            return res.redirect("/alllistings");
-        }
-        const review = await Review.findById(reviewid);
-        const listing = await Listing.findById(id);
-        if (!review || !listing) {
-            req.flash("error", "Review or listing not found");
-            return res.redirect(`/listing/${id}`);
-        }
-        const canDelete = (
-            review.author && review.author.equals(req.user._id)
-        ) || (
-            listing.owner && listing.owner.equals(req.user._id)
-        );
-        if (!canDelete) {
-            req.flash("error", "You don't have permission to delete this review");
-            return res.redirect(`/listing/${id}`);
-        }
-        await Listing.findByIdAndUpdate(id, { $pull: { review: reviewid } });
-        await Review.findByIdAndDelete(reviewid);
+        const { listingId, reviewId } = req.params;
+
+      
+        await Review.findByIdAndDelete(reviewId);
+
+        
+        await Listing.findByIdAndUpdate(listingId, { $pull: { review: reviewId } });
+
         req.flash("success", "Review deleted successfully!");
-        res.redirect(`/listing/${id}`);
+        res.redirect(`/listing/${listingId}`);
     } catch (error) {
         console.error("Error deleting review:", error);
         req.flash("error", "Error deleting review");
-        res.redirect(`/listing/${id}`);
+        res.redirect(`/listing/${listingId}`);
     }
 });
 
