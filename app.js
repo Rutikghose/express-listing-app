@@ -48,9 +48,11 @@ const store= MongoStore.create({
 
 });
 
-store.on("error",()=>{
+store.on("error",(err)=>{
     console.log(err); 
 })
+
+app.set("trust proxy", 1);
 
 const sessionConfig = {
     store,
